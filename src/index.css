@@ -1,0 +1,478 @@
+:root {
+  --bg: #0f172a;
+  --bg-soft: #16213d;
+  --card: #ffffff;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #4f46e5;
+  --accent-soft: #eef2ff;
+  --danger: #dc2626;
+  --bit-net: #dbeafe;
+  --bit-net-ink: #1e3a8a;
+  --bit-host: #f1f5f9;
+  --bit-host-ink: #475569;
+  --bit-class: #d1fae5;
+  --bit-class-ink: #065f46;
+  --bit-subnet: #ede9fe;
+  --bit-subnet-ink: #5b21b6;
+  --bit-mask: #fecaca;
+  --bit-mask-ink: #991b1b;
+  --shadow: 0 10px 30px rgba(2, 6, 23, 0.15);
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, #1e3a8a55, transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, #5b21b655, transparent 55%),
+    var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.hero {
+  color: #e2e8f0;
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.hero h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  letter-spacing: 0.4px;
+}
+
+.hero p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.hero code,
+.footer code {
+  background: #1e293b;
+  color: #93c5fd;
+  padding: 0.1rem 0.35rem;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.form-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.field {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.field input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #f8fafc;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.errors {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.error-item {
+  margin: 0.15rem 0;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.main-section,
+.section-card {
+  padding: 1.1rem 1.25rem;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 100px 190px 1fr;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.line:last-child {
+  border-bottom: none;
+}
+
+.line-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.line-address {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.line-dotted {
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
+.line-extra {
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.line-binary {
+  overflow-x: auto;
+}
+
+.binary {
+  display: inline-flex;
+  align-items: center;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.92rem;
+  line-height: 1.9;
+  white-space: nowrap;
+}
+
+.bit {
+  display: inline-block;
+  min-width: 1.15ch;
+  text-align: center;
+  border-radius: 4px;
+  padding: 0 1px;
+  margin: 0 1px;
+}
+
+.bit-net {
+  background: var(--bit-net);
+  color: var(--bit-net-ink);
+}
+
+.bit-host {
+  background: var(--bit-host);
+  color: var(--bit-host-ink);
+}
+
+.bit-class {
+  background: var(--bit-class);
+  color: var(--bit-class-ink);
+}
+
+.bit-subnet {
+  background: var(--bit-subnet);
+  color: var(--bit-subnet-ink);
+}
+
+.bit-mask {
+  background: var(--bit-mask);
+  color: var(--bit-mask-ink);
+}
+
+.bit-divider {
+  display: inline-block;
+  width: 0.55rem;
+}
+
+.bit-dot {
+  color: #94a3b8;
+  margin: 0 1px;
+}
+
+.arrow {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 0.35rem 0;
+  font-size: 1rem;
+}
+
+.net-card {
+  border-top: 1px solid var(--border);
+  margin-top: 0.35rem;
+  padding-top: 0.2rem;
+}
+
+.net-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.5rem;
+  padding-top: 0.7rem;
+}
+
+.footer-hosts {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.footer-label,
+.total-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.footer-value,
+.total-value {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.tag-class {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.tag-rfc1918 {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border-color: #93c5fd;
+}
+
+.tag-special {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.tag-ptp {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  margin: 0 0 0.6rem;
+}
+
+.subnets-heading {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin: 1rem 0 0.5rem;
+}
+
+.subnet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.9rem;
+}
+
+.subnet-entry {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 0.7rem 0.9rem;
+}
+
+.subnet-entry-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.subnet-number {
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.subnet-network {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.subnet-rows .line {
+  grid-template-columns: 76px 140px 1fr;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+}
+
+.subnet-rows .line-label {
+  font-size: 0.78rem;
+}
+
+.subnet-rows .line-dotted {
+  font-size: 0.9rem;
+}
+
+.subnet-rows .binary {
+  font-size: 0.78rem;
+}
+
+.subnet-entry-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  border-top: 1px dashed var(--border);
+  margin-top: 0.4rem;
+  padding-top: 0.45rem;
+}
+
+.section-totals {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+}
+
+.total-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.truncated-note {
+  font-size: 0.85rem;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  margin: 0;
+}
+
+.footer {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding: 1.25rem 0.9rem 2rem;
+  }
+
+  .main-section,
+  .section-card {
+    padding: 0.9rem 0.9rem;
+  }
+
+  .line {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    padding: 0.6rem 0;
+  }
+
+  .line-label {
+    text-align: left;
+  }
+
+  .line-address {
+    font-size: 1.05rem;
+  }
+
+  .subnet-rows .line {
+    grid-template-columns: 1fr;
+  }
+}
