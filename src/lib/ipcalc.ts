@@ -19,6 +19,10 @@ const RFC = {
   rfc1700: "http://www.ietf.org/rfc/rfc1700.txt",
   rfc3171: "http://www.ietf.org/rfc/rfc3171.txt",
   rfc3021: "http://www.ietf.org/rfc/rfc3021.txt",
+  rfc6598: "http://www.ietf.org/rfc/rfc6598.txt",
+  rfc5737: "http://www.ietf.org/rfc/rfc5737.txt",
+  rfc2544: "http://www.ietf.org/rfc/rfc2544.txt",
+  rfc6890: "http://www.ietf.org/rfc/rfc6890.txt",
 };
 
 const NETBLOCKS: Array<{
@@ -34,6 +38,12 @@ const NETBLOCKS: Array<{
   { net: "169.254.0.0", bits: 16, text: "APIPA", url: RFC.rfc3330, kind: "special" },
   { net: "127.0.0.0", bits: 8, text: "Loopback", url: RFC.rfc1700, kind: "special" },
   { net: "224.0.0.0", bits: 4, text: "Multicast", url: RFC.rfc3171, kind: "special" },
+  { net: "100.64.0.0", bits: 10, text: "Shared Address Space (CGNAT)", url: RFC.rfc6598, kind: "special" },
+  { net: "192.0.2.0", bits: 24, text: "TEST-NET-1 (Documentation)", url: RFC.rfc5737, kind: "special" },
+  { net: "198.51.100.0", bits: 24, text: "TEST-NET-2 (Documentation)", url: RFC.rfc5737, kind: "special" },
+  { net: "203.0.113.0", bits: 24, text: "TEST-NET-3 (Documentation)", url: RFC.rfc5737, kind: "special" },
+  { net: "192.0.0.0", bits: 24, text: "IETF Protocol Assignments", url: RFC.rfc6890, kind: "special" },
+  { net: "198.18.0.0", bits: 15, text: "Benchmarking", url: RFC.rfc2544, kind: "special" },
 ];
 
 export function parseNetmaskResult(

@@ -72,3 +72,24 @@ export interface IpCalcResult {
   subnetSection: SubnetSection | null;
   supernetSection: SupernetSection | null;
 }
+
+export interface Ipv6Line {
+  label: string;
+  value: string;
+  extra?: string;
+}
+
+export interface Ipv6NetInfo {
+  lines: Ipv6Line[];
+  addressesPerNet: string;
+  descriptionItems: DescriptionItem[];
+}
+
+export interface Ipv6CalcResult {
+  errors: string[];
+  address: bigint;
+  expanded: string;
+  compressed: string;
+  prefix: number;
+  netInfo: Ipv6NetInfo;
+}
