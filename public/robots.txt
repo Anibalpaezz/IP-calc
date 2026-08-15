@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ip-calc-seven.vercel.app/sitemap.xml

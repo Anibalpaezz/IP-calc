@@ -70,7 +70,10 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.lang = lang;
-    document.title = lang === "es" ? "Calculadora de Subredes" : "Subnet Calculator";
+    document.title =
+      lang === "es"
+        ? "Calculadora IP Online | Cálculo de Subredes, CIDR y Máscaras"
+        : "IP Calculator Online | Subnet, CIDR and Mask Calculator";
     try {
       localStorage.setItem("ipcalc-lang", lang);
     } catch {

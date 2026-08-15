@@ -4,7 +4,7 @@ export type Lang = "es" | "en";
 
 export const messages: Record<Lang, Record<string, ReactNode>> = {
   es: {
-    "app.title": "Calculadora de Subredes",
+    "app.title": "Calculadora IP y de Subredes Online",
     "app.subtitle": (
       <>
         Calculadora IPv4 (estilo <code>ipcalc</code>) e IPv6 con recálculo en tiempo real. Los
@@ -81,7 +81,7 @@ export const messages: Record<Lang, Record<string, ReactNode>> = {
     "addressesNet.label": "Direcciones/Red",
   },
   en: {
-    "app.title": "Subnet Calculator",
+    "app.title": "IP Subnet Calculator Online",
     "app.subtitle": (
       <>
         IPv4 (ipcalc-style) and IPv6 calculator with real-time recalculation. Results update as you
