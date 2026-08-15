@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { calculateIpCalc } from "./lib/ipcalc";
 import { calculateIpv6Calc } from "./lib/ipv6calc";
 import { ipv4ToText, ipv6ToText } from "./lib/export";
+import { LanguageProvider } from "./components/LanguageProvider";
+import { useLang, type Lang } from "./i18n";
 import { ErrorPanel } from "./components/ErrorPanel";
 import { IpLineRow } from "./components/IpLineRow";
 import { NetCard } from "./components/NetCard";
@@ -13,6 +15,9 @@ const DEFAULT_HOST = "192.168.0.1";
 const DEFAULT_MASK1 = "24";
 
 type Theme = "light" | "dark";
+
+const IPv4_PRESETS = [8, 12, 16, 24, 25, 26, 27, 28, 30, 32];
+const IPv6_PRESETS = [32, 48, 56, 64, 80, 96, 128];
 
 function initialTheme(): Theme {
   const param = new URLSearchParams(window.location.search).get("theme");
@@ -26,18 +31,32 @@ function initialTheme(): Theme {
   return "light";
 }
 
-const IPv4_PRESETS = [8, 12, 16, 24, 25, 26, 27, 28, 30, 32];
-const IPv6_PRESETS = [32, 48, 56, 64, 80, 96, 128];
+function initialLang(): Lang {
+  const param = new URLSearchParams(window.location.search).get("lang");
+  if (param === "es" || param === "en") return param;
+  try {
+    const stored = localStorage.getItem("ipcalc-lang");
+    if (stored === "es" || stored === "en") return stored;
+  } catch {
+    /* ignore */
+  }
+  return "es";
+}
+
+function getParams() {
+  return new URLSearchParams(window.location.search);
+}
 
 export default function App() {
-  const [host, setHost] = useState(() => new URLSearchParams(window.location.search).get("host") ?? DEFAULT_HOST);
+  const [host, setHost] = useState(() => getParams().get("host") ?? DEFAULT_HOST);
   const [mask1, setMask1] = useState(() => {
-    const hostCidr = (new URLSearchParams(window.location.search).get("host") ?? "").match(/^(.+)\/(\d{1,3})$/);
+    const hostCidr = (getParams().get("host") ?? "").match(/^(.+)\/(\d{1,3})$/);
     if (hostCidr) return hostCidr[2];
-    return new URLSearchParams(window.location.search).get("mask1") ?? DEFAULT_MASK1;
+    return getParams().get("mask1") ?? DEFAULT_MASK1;
   });
-  const [mask2, setMask2] = useState(() => new URLSearchParams(window.location.search).get("mask2") ?? "");
+  const [mask2, setMask2] = useState(() => getParams().get("mask2") ?? "");
   const [theme, setTheme] = useState<Theme>(initialTheme);
+  const [lang, setLang] = useState<Lang>(initialLang);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -50,15 +69,26 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
+    document.documentElement.lang = lang;
+    document.title = lang === "es" ? "Calculadora de Subredes" : "Subnet Calculator";
+    try {
+      localStorage.setItem("ipcalc-lang", lang);
+    } catch {
+      /* ignore */
+    }
+  }, [lang]);
+
+  useEffect(() => {
     const sp = new URLSearchParams();
     if (host) sp.set("host", host);
     if (mask1) sp.set("mask1", mask1);
     if (mask2) sp.set("mask2", mask2);
     if (theme) sp.set("theme", theme);
+    if (lang) sp.set("lang", lang);
     const qs = sp.toString();
     const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
     window.history.replaceState(null, "", url);
-  }, [host, mask1, mask2, theme]);
+  }, [host, mask1, mask2, theme, lang]);
 
   const split = useMemo(() => {
     const m = host.match(/^(.+)\/(\d{1,3})$/);
@@ -125,40 +155,101 @@ export default function App() {
   const presets = isIpv6 ? IPv6_PRESETS : IPv4_PRESETS;
 
   return (
+    <LanguageProvider lang={lang} onLangChange={setLang}>
+      <AppContent
+        host={host}
+        onHostChange={handleHostChange}
+        mask1={mask1}
+        onMask1Change={handleMask1Change}
+        mask2={mask2}
+        onMask2Change={setMask2}
+        theme={theme}
+        onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+        lang={lang}
+        onLangChange={setLang}
+        isIpv6={isIpv6}
+        effectiveMask1={effectiveMask1}
+        presets={presets}
+        onApplyPreset={applyPreset}
+        copied={copied}
+        onCopy={copyResult}
+        errors={errors}
+        ipv4={ipv4}
+        ipv6={ipv6}
+      />
+    </LanguageProvider>
+  );
+}
+
+interface AppContentProps {
+  host: string;
+  onHostChange: (v: string) => void;
+  mask1: string;
+  onMask1Change: (v: string) => void;
+  mask2: string;
+  onMask2Change: (v: string) => void;
+  theme: Theme;
+  onToggleTheme: () => void;
+  lang: Lang;
+  onLangChange: (l: Lang) => void;
+  isIpv6: boolean;
+  effectiveMask1: string;
+  presets: number[];
+  onApplyPreset: (b: number) => void;
+  copied: boolean;
+  onCopy: () => void;
+  errors: string[];
+  ipv4: ReturnType<typeof calculateIpCalc> | null;
+  ipv6: ReturnType<typeof calculateIpv6Calc> | null;
+}
+
+function AppContent(props: AppContentProps) {
+  const { t } = useLang();
+
+  return (
     <div className="app">
       <header className="hero">
-        <button
-          type="button"
-          className="theme-toggle"
-          onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-        >
-          {theme === "dark" ? "Tema claro" : "Tema oscuro"}
-        </button>
-        <h1>Calculadora de Subredes</h1>
-        <p>
-          Calculadora IPv4 (estilo <code>ipcalc</code>) e IPv6 con recálculo en tiempo real. Los
-          resultados se actualizan mientras escribes.
-        </p>
+        <div className="hero-actions">
+          <div className="lang-switch" role="group" aria-label="Language / Idioma">
+            <button
+              type="button"
+              className={props.lang === "es" ? "is-active" : ""}
+              onClick={() => props.onLangChange("es")}
+            >
+              ES
+            </button>
+            <button
+              type="button"
+              className={props.lang === "en" ? "is-active" : ""}
+              onClick={() => props.onLangChange("en")}
+            >
+              EN
+            </button>
+          </div>
+          <button type="button" className="theme-toggle" onClick={props.onToggleTheme}>
+            {props.theme === "dark" ? t("theme.light") : t("theme.dark")}
+          </button>
+        </div>
+        <h1>{t("app.title")}</h1>
+        <p>{t("app.subtitle")}</p>
       </header>
 
       <form className="card form-card" onSubmit={(e) => e.preventDefault()}>
         <div className="field">
-          <label htmlFor="host">Address (Host or Network)</label>
+          <label htmlFor="host">{t("host.label")}</label>
           <input
             id="host"
             type="text"
             autoComplete="off"
             spellCheck={false}
             placeholder="192.168.0.1"
-            value={host}
-            onChange={(e) => handleHostChange(e.target.value)}
+            value={props.host}
+            onChange={(e) => props.onHostChange(e.target.value)}
           />
-          <span className="field-hint">
-            Acepta <code>192.168.0.1/24</code> o <code>2001:db8::1/64</code>
-          </span>
+          <span className="field-hint">{t("host.hint")}</span>
         </div>
         <div className="field">
-          <label htmlFor="mask1">{isIpv6 ? "Prefix (i.e. 64 o /64)" : "Netmask (i.e. 24 o /24)"}</label>
+          <label htmlFor="mask1">{props.isIpv6 ? t("prefix.label") : t("netmask.label")}</label>
           <input
             id="mask1"
             type="text"
@@ -166,12 +257,12 @@ export default function App() {
             autoComplete="off"
             spellCheck={false}
             placeholder="24"
-            value={mask1}
-            onChange={(e) => handleMask1Change(e.target.value)}
+            value={props.mask1}
+            onChange={(e) => props.onMask1Change(e.target.value)}
           />
         </div>
         <div className="field">
-          <label htmlFor="mask2">Netmask for sub/supernet (optional)</label>
+          <label htmlFor="mask2">{t("mask2.label")}</label>
           <input
             id="mask2"
             type="text"
@@ -179,20 +270,20 @@ export default function App() {
             autoComplete="off"
             spellCheck={false}
             placeholder="26"
-            value={mask2}
-            onChange={(e) => setMask2(e.target.value)}
+            value={props.mask2}
+            onChange={(e) => props.onMask2Change(e.target.value)}
           />
         </div>
       </form>
 
       <div className="presets">
-        <span className="presets-label">Presets:</span>
-        {presets.map((bits) => (
+        <span className="presets-label">{t("presets.label")}</span>
+        {props.presets.map((bits) => (
           <button
             key={bits}
             type="button"
-            className={`preset-btn ${Number(effectiveMask1) === bits ? "is-active" : ""}`}
-            onClick={() => applyPreset(bits)}
+            className={`preset-btn ${Number(props.effectiveMask1) === bits ? "is-active" : ""}`}
+            onClick={() => props.onApplyPreset(bits)}
           >
             /{bits}
           </button>
@@ -200,69 +291,47 @@ export default function App() {
       </div>
 
       <div className="toolbar">
-        <span className={`mode-badge ${isIpv6 ? "ipv6" : "ipv4"}`}>{isIpv6 ? "IPv6" : "IPv4"}</span>
-        <button type="button" className={`tool-btn ${copied ? "copied" : ""}`} onClick={copyResult}>
-          {copied ? "Copiado" : "Copiar texto"}
+        <span className={`mode-badge ${props.isIpv6 ? "ipv6" : "ipv4"}`}>{props.isIpv6 ? "IPv6" : "IPv4"}</span>
+        <button type="button" className={`tool-btn ${props.copied ? "copied" : ""}`} onClick={props.onCopy}>
+          {props.copied ? t("copy.done") : t("copy.text")}
         </button>
       </div>
 
-      <ErrorPanel errors={errors} />
+      <ErrorPanel errors={props.errors} />
 
       <main className="results">
-        {ipv4 && (
-          <section className="card main-section" aria-label="Resultado principal">
-            {ipv4.netInfo.lines.slice(0, 3).map((line) => (
+        {props.ipv4 && (
+          <section className="card main-section" aria-label="Result">
+            {props.ipv4.netInfo.lines.slice(0, 3).map((line) => (
               <IpLineRow key={line.label} line={line} />
             ))}
-            <NetCard info={{ ...ipv4.netInfo, lines: ipv4.netInfo.lines.slice(3) }} showArrow />
+            <NetCard info={{ ...props.ipv4.netInfo, lines: props.ipv4.netInfo.lines.slice(3) }} showArrow />
           </section>
         )}
 
-        {ipv4?.subnetSection && <SubnetSectionView section={ipv4.subnetSection} />}
-        {ipv4?.supernetSection && <SupernetSectionView section={ipv4.supernetSection} />}
+        {props.ipv4?.subnetSection && <SubnetSectionView section={props.ipv4.subnetSection} />}
+        {props.ipv4?.supernetSection && <SupernetSectionView section={props.ipv4.supernetSection} />}
 
-        {ipv6 && <Ipv6SectionView result={ipv6} />}
+        {props.ipv6 && <Ipv6SectionView result={props.ipv6} />}
       </main>
 
       <details className="legend card">
-        <summary>¿Qué significa cada campo?</summary>
+        <summary>{t("legend.summary")}</summary>
         <ul>
-          <li>
-            <strong>Address:</strong> la dirección IP (host o red) que escribiste. En IPv4 también
-            puedes escribirla con prefijo: <code>192.168.0.1/24</code>.
-          </li>
-          <li>
-            <strong>Netmask:</strong> máscara de red (CIDR <code>/24</code>, decimal{" "}
-            <code>255.255.255.0</code> o wildcard inversa <code>0.0.0.255</code>). Separa la parte de
-            red de la de host.
-          </li>
-          <li>
-            <strong>Wildcard:</strong> comodín inverso de la máscara (los bits de host a 1); se usa en
-            ACLs.
-          </li>
-          <li>
-            <strong>Network:</strong> la dirección base de la subred.
-          </li>
-          <li>
-            <strong>HostMin / HostMax:</strong> primer y último host utilizables de la subred.
-          </li>
-          <li>
-            <strong>Broadcast:</strong> dirección de difusión a todos los hosts de la subred.
-          </li>
-          <li>
-            <strong>Hosts/Net:</strong> direcciones utilizables (el clásico <code>2ⁿ − 2</code>, salvo{" "}
-            <code>/31</code> con 2 y <code>/32</code> con 1).
-          </li>
-          <li>
-            <strong>Second netmask:</strong> si es mayor que la primera divide en subredes; si es menor,
-            calcula la superred que las agrupa.
-          </li>
+          <li>{t("legend.1")}</li>
+          <li>{t("legend.2")}</li>
+          <li>{t("legend.3")}</li>
+          <li>{t("legend.4")}</li>
+          <li>{t("legend.5")}</li>
+          <li>{t("legend.6")}</li>
+          <li>{t("legend.7")}</li>
+          <li>{t("legend.8")}</li>
         </ul>
       </details>
 
       <footer className="footer">
         <p>
-          Develop by{" "}
+          {t("footer.developer")}{" "}
           <a className="footer-link" href="https://anibalpaezzgallego.com" target="_blank" rel="noreferrer">
             Anibal Paez Gallego
           </a>
